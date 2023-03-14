@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "./dist/esm",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "./src/**/*"
+  ]
+}
