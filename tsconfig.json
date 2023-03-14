@@ -8,9 +8,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "resolveJsonModule": true
-  },
-  "include": [
-    "./src/**/*"
-  ]
+    "resolveJsonModule": true,
+    "jsx": "react-jsx"
+  }
 }
