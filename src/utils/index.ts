@@ -1,7 +1,7 @@
 import ts from "typescript";
 
 export const toBlock = (b: ts.Block | ts.Statement[]) => {
-	if (Array.isArray(b)) return ts.factory.createBlock(b);
+	if (Array.isArray(b)) return ts.factory.createBlock(b, b.length > 1);
 	return b;
 };
 

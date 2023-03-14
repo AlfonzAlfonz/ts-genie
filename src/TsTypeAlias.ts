@@ -5,6 +5,10 @@ export class TsTypeAlias {
 		return ts.factory.createTypeLiteralNode(members);
 	}
 
+	public array(type: ts.TypeNode) {
+		return ts.factory.createArrayTypeNode(type);
+	}
+
 	public any() {
 		return ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword);
 	}
@@ -13,12 +17,12 @@ export class TsTypeAlias {
 		return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword);
 	}
 
-	public never() {
-		return ts.factory.createKeywordTypeNode(ts.SyntaxKind.NeverKeyword);
-	}
-
 	public boolean() {
 		return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword);
+	}
+
+	public never() {
+		return ts.factory.createKeywordTypeNode(ts.SyntaxKind.NeverKeyword);
 	}
 
 	public number() {
@@ -57,7 +61,12 @@ export class TsTypeAlias {
 		return ts.factory.createFalse();
 	}
 
-  public prop(modifiers: ts.Modifier[], key: string, questionToken: "?",	type: ts.TypeNode): ts.PropertySignature;
+	public prop(
+		modifiers: ts.Modifier[],
+		key: string,
+		questionToken: "?",
+		type: ts.TypeNode
+	): ts.PropertySignature;
 	public prop(modifiers: ts.Modifier[], key: string, type: ts.TypeNode): ts.PropertySignature;
 	public prop(
 		modifiers: ts.Modifier[],

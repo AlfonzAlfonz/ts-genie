@@ -1,57 +1,63 @@
 import ts from "typescript";
 import { TsExpression } from "./TsExpression.js";
+import { printAst } from "./utils/printAst.js";
+import { TsBlock } from "./TsBlock.js";
 
 test("identifiers & literals", () => {
 	const e = new TsExpression();
 
-	expect(e.id("test")).toMatchObject(ts.factory.createIdentifier("test"));
-	expect(e.string("string")).toMatchObject(ts.factory.createStringLiteral("string"));
-	expect(e.number(6)).toMatchObject(ts.factory.createNumericLiteral(6));
-	expect(e.true()).toMatchObject(ts.factory.createTrue());
-	expect(e.false()).toMatchObject(ts.factory.createFalse());
-	expect(e.null()).toMatchObject(ts.factory.createNull());
+	expect(printAst(e.id("test"))).toBe("test");
+	expect(printAst(e.string("string"))).toBe(`"string"`);
+	expect(printAst(e.number(6))).toBe("6");
+	expect(printAst(e.true())).toBe("true");
+	expect(printAst(e.false())).toBe("false");
+	expect(printAst(e.null())).toBe("null");
 });
 
 test("operators unary", () => {
 	const e = new TsExpression();
 
-	expect(e.operation("+", e.id("test"))).toMatchObject(
-		ts.factory.createPrefixUnaryExpression(
-			ts.SyntaxKind.PlusToken,
-			ts.factory.createIdentifier("test")
-		)
-	);
+	expect(printAst(e.operation("+", e.id("test")))).toBe("+test");
 
-	expect(e.operation(e.id("test"), "--")).toMatchObject(
-		ts.factory.createPostfixUnaryExpression(
-			ts.factory.createIdentifier("test"),
-			ts.SyntaxKind.MinusMinusToken
-		)
-	);
+	expect(printAst(e.operation(e.id("test"), "--"))).toBe("test--");
 });
 
 test("operators binary", () => {
 	const e = new TsExpression();
 
-	expect(e.operation(e.id("test1"), "+", e.id("test2"))).toMatchObject(
-		ts.factory.createBinaryExpression(
-			ts.factory.createIdentifier("test1"),
-			ts.SyntaxKind.PlusToken,
-			ts.factory.createIdentifier("test2")
-		)
+	expect(printAst(e.operation(e.id("test1"), "+", e.id("test2")))).toBe("test1 + test2");
+	expect(printAst(e.operation(e.id("test1"), ts.SyntaxKind.MinusToken, e.id("test2")))).toBe(
+		"test1 - test2"
 	);
 });
 
 test("operators ternary", () => {
 	const e = new TsExpression();
 
-	expect(e.operation(e.id("test1"), "?", e.id("test2"), ":", e.id("test3"))).toMatchObject(
-		ts.factory.createConditionalExpression(
-			ts.factory.createIdentifier("test1"),
-			ts.factory.createToken(ts.SyntaxKind.QuestionToken),
-			ts.factory.createIdentifier("test2"),
-			ts.factory.createToken(ts.SyntaxKind.ColonToken),
-			ts.factory.createIdentifier("test3")
-		)
+	expect(printAst(e.operation(e.id("test1"), "?", e.id("test2"), ":", e.id("test3")))).toBe(
+		"test1 ? test2 : test3"
 	);
+});
+
+test("inline function", () => {
+	const e = new TsExpression();
+	expect(
+		printAst(e.arrowFunction([], [], [], undefined, e.operation(e.id("a"), "+", e.id("b"))))
+	).toBe("() => a + b");
+});
+
+test("singleline function", () => {
+	const e = new TsExpression();
+	const b = new TsBlock();
+	expect(
+		printAst(
+			e.arrowFunction(
+				[],
+				[],
+				[],
+				undefined,
+				ts.factory.createBlock([b.return(e.operation(e.id("a"), "+", e.id("b")))])
+			)
+		)
+	).toBe("() => { return a + b; }");
 });

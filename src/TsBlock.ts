@@ -16,9 +16,7 @@ export class TsBlock extends TsExpression {
 		members: ts.TypeElement[] | ((i: TsTypeAlias) => ts.TypeElement[])
 	) {
 		return ts.factory.createInterfaceDeclaration(
-			modifiers?.map((m) =>
-				m === "export" ? ts.factory.createModifier(ts.SyntaxKind.ExportKeyword) : m
-			),
+			resolveModifiers(modifiers),
 			name,
 			typeParameters,
 			heritageClauses,
@@ -35,9 +33,7 @@ export class TsBlock extends TsExpression {
 		members: ts.Block | ts.Statement[] | ((b: TsBlock) => ts.Block | ts.Statement[])
 	) {
 		return ts.factory.createFunctionDeclaration(
-			modifiers?.map((m) =>
-				m === "export" ? ts.factory.createModifier(ts.SyntaxKind.ExportKeyword) : m
-			),
+			resolveModifiers(modifiers),
 			undefined,
 			name,
 			typeParameters,
@@ -54,9 +50,7 @@ export class TsBlock extends TsExpression {
 		type: ts.TypeNode | ((ta: TsTypeAlias) => ts.TypeNode)
 	) {
 		return ts.factory.createTypeAliasDeclaration(
-			modifiers?.map((m) =>
-				m === "export" ? ts.factory.createModifier(ts.SyntaxKind.ExportKeyword) : m
-			),
+			resolveModifiers(modifiers),
 			name,
 			typeParameters,
 			resolve(type, TsTypeAlias)
@@ -70,9 +64,7 @@ export class TsBlock extends TsExpression {
 		value: ts.Expression | ((e: TsExpression) => ts.Expression)
 	) {
 		return ts.factory.createVariableStatement(
-			modifiers?.map((m) =>
-				m === "export" ? ts.factory.createModifier(ts.SyntaxKind.ExportKeyword) : m
-			),
+			resolveModifiers(modifiers),
 			ts.factory.createVariableDeclarationList(
 				[ts.factory.createVariableDeclaration(name, undefined, type, resolve(value, TsExpression))],
 				ts.NodeFlags.Const
@@ -81,3 +73,7 @@ export class TsBlock extends TsExpression {
 	}
 }
 
+const resolveModifiers = (modifiers: (ts.ModifierLike | "export")[] | undefined) =>
+	modifiers?.map((m) =>
+		m === "export" ? ts.factory.createModifier(ts.SyntaxKind.ExportKeyword) : m
+	);

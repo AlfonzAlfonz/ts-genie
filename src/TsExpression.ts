@@ -3,31 +3,6 @@ import { TsParams } from "./TsParams.js";
 import { TsTypeAlias } from "./TsTypeAlias.js";
 import { resolve, toBlock } from "./utils/index.js";
 
-type TsPrefixOp = ts.PrefixUnaryOperator | "++" | "--" | "+" | "-" | "~" | "!";
-type TsPostFixOp = ts.PostfixUnaryOperator | "++" | "--";
-type TsBinaryOp =
-	| ts.BinaryOperator
-	| "??"
-	| "**"
-	| "*"
-	| "/"
-	| "%"
-	| "+"
-	| "-"
-	| "<<"
-	| ">>"
-	| ">>>"
-	| "<"
-	| "<="
-	| ">"
-	| ">="
-	| "instanceof"
-	| "in"
-	| "=="
-	| "==="
-	| "!="
-	| "!==";
-
 export class TsExpression {
 	public readonly types = new TsTypeAlias();
 
@@ -77,9 +52,34 @@ export class TsExpression {
 				segments[4] as any
 			);
 		}
-	}
 
-	// LogicalOperatorOrHigher | AssignmentOperator
+		if (segments.length === 3) {
+			return ts.factory.createBinaryExpression(
+				segments[0] as ts.Expression,
+				resolveOperationToken(segments[1] as any),
+				segments[2] as ts.Expression
+			);
+		}
+
+		if (segments.length === 2) {
+			const a = segments[0];
+			const b = segments[1];
+			if (a === "?" || a === ":" || b === "?" || b === ":") throw new Error("Invalid");
+			if (typeof a === "string" || typeof a === "number") {
+				return ts.factory.createPrefixUnaryExpression(
+					resolveOperationToken(a) as ts.PrefixUnaryOperator,
+					b as ts.Expression
+				);
+			}
+
+			if (typeof b === "string" || typeof b === "number") {
+				return ts.factory.createPostfixUnaryExpression(
+					a as ts.Expression,
+					resolveOperationToken(b) as ts.PostfixUnaryOperator
+				);
+			}
+		}
+	}
 
 	public arrowFunction(
 		modifiers: ts.Modifier[],
@@ -105,3 +105,66 @@ export class TsExpression {
 		);
 	}
 }
+
+type TsPrefixOp = ts.PrefixUnaryOperator | "++" | "--" | "+" | "-" | "~" | "!";
+type TsPostFixOp = ts.PostfixUnaryOperator | "++" | "--";
+type TsBinaryOp =
+	| ts.BinaryOperator
+	| "??"
+	| "**"
+	| "*"
+	| "/"
+	| "%"
+	| "+"
+	| "-"
+	| "<<"
+	| ">>"
+	| ">>>"
+	| "<"
+	| "<="
+	| ">"
+	| ">="
+	| "instanceof"
+	| "in"
+	| "=="
+	| "==="
+	| "!="
+	| "!==";
+
+const resolveOperationToken = <T extends TsPrefixOp | TsPostFixOp | TsBinaryOp>(
+	x: T
+): T & number => {
+	if (typeof x === "number") return x;
+
+	const tokens: Record<
+		string,
+		ts.PrefixUnaryOperator | ts.PostfixUnaryOperator | ts.BinaryOperator
+	> = {
+		"++": ts.SyntaxKind.PlusPlusToken,
+		"--": ts.SyntaxKind.MinusMinusToken,
+		"+": ts.SyntaxKind.PlusToken,
+		"-": ts.SyntaxKind.MinusToken,
+		"~": ts.SyntaxKind.TildeToken,
+		"!": ts.SyntaxKind.ExclamationToken,
+		"??": ts.SyntaxKind.QuestionQuestionToken,
+		"**": ts.SyntaxKind.AsteriskAsteriskToken,
+		"*": ts.SyntaxKind.AsteriskToken,
+		"/": ts.SyntaxKind.SlashToken,
+		"%": ts.SyntaxKind.PercentToken,
+		"<<": ts.SyntaxKind.LessThanLessThanToken,
+		">>": ts.SyntaxKind.GreaterThanGreaterThanToken,
+		">>>": ts.SyntaxKind.GreaterThanGreaterThanGreaterThanToken,
+		"<": ts.SyntaxKind.LessThanToken,
+		"<=": ts.SyntaxKind.LessThanEqualsToken,
+		">": ts.SyntaxKind.GreaterThanToken,
+		">=": ts.SyntaxKind.GreaterThanEqualsToken,
+		instanceof: ts.SyntaxKind.InstanceOfKeyword,
+		in: ts.SyntaxKind.InKeyword,
+		"==": ts.SyntaxKind.EqualsEqualsToken,
+		"===": ts.SyntaxKind.EqualsEqualsEqualsToken,
+		"!=": ts.SyntaxKind.ExclamationEqualsToken,
+		"!==": ts.SyntaxKind.ExclamationEqualsEqualsToken,
+	};
+
+	return tokens[x as string] as T & number;
+};
