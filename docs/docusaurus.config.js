@@ -8,11 +8,8 @@ const config = {
   tagline: "Set of utilities to help with generating TS files ",
   favicon: "img/favicon.ico",
 
-  url: "https://your-docusaurus-test-site.com",
+  url: "https://ts-gen.vercel.app/",
   baseUrl: "/",
-
-  organizationName: "AlfonzAlfonz",
-  projectName: "ts-gen",
 
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
