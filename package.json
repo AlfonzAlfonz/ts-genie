@@ -1,5 +1,5 @@
 {
-  "name": "@ts-gen/root",
+  "name": "@ts-genie/root",
   "version": "1.0.0",
   "private": true,
   "description": "",
@@ -8,6 +8,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "typescript": "^5.0.0-beta.0"
+    "typescript": "^5.0.2"
   }
 }

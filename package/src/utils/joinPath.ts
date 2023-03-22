@@ -7,7 +7,7 @@
 export const joinPath = (...[s, ...segments]: string[]) => segments.reduce(concatPath, s) ?? "";
 
 const concatPath = (a: string, b: string) =>
-	a === ""
+	a === "" || a === "."
 		? b
 		: b === ""
 		? a

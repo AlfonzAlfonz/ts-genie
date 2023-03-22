@@ -1,13 +1,12 @@
-module.exports = {
+// @ts-check
+/** @type {import("jest").Config} */
+const config = {
 	roots: ["<rootDir>/src"],
-	testMatch: ["**/__tests__/**/*.+(ts|tsx|js)", "**/?(*.)+(spec|test).+(ts|tsx|js)"],
-	transform: {
-		"^.+\\.(ts|tsx)$": ["ts-jest", { useESM: true }],
-	},
-	preset: "ts-jest",
-	testEnvironment: "node",
 	extensionsToTreatAsEsm: [".ts"],
+	preset: "ts-jest/presets/default-esm",
 	moduleNameMapper: {
 		"^(\\.{1,2}/.*)\\.js$": "$1",
 	},
 };
+
+module.exports = config;

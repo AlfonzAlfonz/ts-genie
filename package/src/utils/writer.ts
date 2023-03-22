@@ -1,6 +1,7 @@
 import ts from "typescript";
 import { promises as fs } from "fs";
 import { parse, join } from "path";
+import { TsGenieParam, resolveParam } from "../builders/utils.js";
 
 /**
  * Utility to write generated typescript asts to a file
@@ -8,37 +9,46 @@ import { parse, join } from "path";
  * @returns handle object
  */
 export const getWriter = (path: string) => {
-  let sourceFile: ts.SourceFile;
-  let handler: fs.FileHandle;
-  let filePath: string;
-  const printer = ts.createPrinter();
+	let sourceFile: ts.SourceFile;
+	let handler: fs.FileHandle;
+	let filePath: string;
+	const printer = ts.createPrinter();
 
-  const buffer: (ts.Node | string | undefined)[] = [];
+	const buffer: (ts.Node | string | undefined)[] = [];
 
-  return {
-    open: async () => {
-      filePath = path;
-      const filename = join(process.cwd(), filePath);
+	return {
+		open: async () => {
+			filePath = path;
+			const filename = join(process.cwd(), filePath);
 
-      sourceFile = ts.createSourceFile(filename, "", ts.ScriptTarget.ESNext, true, ts.ScriptKind.TS);
-      const { dir } = parse(filename);
-      await fs.mkdir(dir, { recursive: true });
+			sourceFile = ts.createSourceFile(
+				filename,
+				"",
+				ts.ScriptTarget.ESNext,
+				true,
+				ts.ScriptKind.TS
+			);
+			const { dir } = parse(filename);
+			await fs.mkdir(dir, { recursive: true });
 
-      handler = await fs.open(filename, "w+");
-      await handler.write("/* eslint-disable max-len */\n");
-    },
-    getFilePath: () => filePath,
-    writeImports: (...nodes: ts.Node[]) => buffer.unshift(...nodes, "\n"),
-    write: (...nodes: (ts.Node | string | undefined)[]) => buffer.push(...nodes.flatMap(n => [n, "\n"])),
-    close: async () => {
-      await handler.write(
-        buffer.filter(Boolean).map(n =>
-          typeof n === "string"
-            ? n
-            : printer.printNode(ts.EmitHint.Unspecified, n!, sourceFile)
-        ).join("\n")
-      );
-      await handler.close();
-    }
-  };
+			handler = await fs.open(filename, "w+");
+			await handler.write("/* eslint-disable max-len */\n");
+		},
+		getFilePath: () => filePath,
+		writeImports: (...nodes: TsGenieParam<ts.Node>[]) =>
+			buffer.unshift(...nodes.map(resolveParam), "\n"),
+		write: (...nodes: (TsGenieParam<ts.Node> | string | undefined)[]) =>
+			buffer.push(...nodes.flatMap((n) => [resolveParam(n), "\n"])),
+		close: async () => {
+			await handler.write(
+				buffer
+					.filter(Boolean)
+					.map((n) =>
+						typeof n === "string" ? n : printer.printNode(ts.EmitHint.Unspecified, n!, sourceFile)
+					)
+					.join("\n")
+			);
+			await handler.close();
+		},
+	};
 };

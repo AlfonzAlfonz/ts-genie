@@ -1,23 +1,23 @@
 {
-  "name": "ts-gen",
+  "name": "ts-genie",
   "version": "1.0.0",
   "description": "",
   "keywords": [],
   "author": "Denis Homolík",
   "license": "ISC",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
   "exports": {
-    "default": "./dist/index.js",
-    "import": "./dist/index.js",
-    "node": "./dist/index.js",
-    "require": "./dist/index.js",
-    "types": "./dist/index.d.ts"
+    "default": "./dist/esm/index.js",
+    "import": "./dist/esm/index.js",
+    "node": "./dist/esm/index.js",
+    "require": "./dist/cjs/index.js",
+    "types": "./dist/esm/index.d.ts"
   },
   "scripts": {
     "build": "rm -rf dist && pnpm tsc && pnpm tsc -p tsconfig.cjs.json",
-    "test": "jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules ts-node --esm node_modules/jest/bin/jest.js"
   },
   "devDependencies": {
     "@babel/core": "^7.21.0",
@@ -30,7 +30,7 @@
     "jest": "^29.5.0",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.1",
-    "typescript": "^5.0.0-beta.0"
+    "typescript": "^5.0.2"
   },
   "peerDependencies": {
     "typescript": ">=5"

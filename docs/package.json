@@ -1,5 +1,5 @@
 {
-  "name": "@ts-gen/docs",
+  "name": "@ts-genie/docs",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -33,7 +33,7 @@
     "@docusaurus/module-type-aliases": "2.3.1",
     "@docusaurus/types": "^2.3.1",
     "@tsconfig/docusaurus": "^1.0.5",
-    "typescript": "^5.0.0-beta.0"
+    "typescript": "^5.0.2"
   },
   "browserslist": {
     "production": [

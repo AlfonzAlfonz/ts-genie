@@ -1,6 +1,8 @@
 import ts from "typescript";
-import { joinPath } from "./joinPath.js";
-import { expandTsExpression } from "./expandTsIdentifier.js";
+import { ExpressionStartBuilder } from "../builders/ExpressionStartBuilder.js";
+import { ModulePathBuilder } from "../builders/ModulePathBuilder.js";
+import { TypeBuilder } from "../builders/TypeBuilder.js";
+import { WithHelper, resolveHelper } from "../builders/utils.js";
 
 /**
  * Utility to collect imports (or exports) during creating of ts asts
@@ -9,26 +11,28 @@ export class Imports {
 	private imports: Map<string, string[]> = new Map();
 	private importTypes: Map<string, string[]> = new Map();
 
-	private depth: number;
+	private filename: string;
 
-	public constructor(depth: number = 0) {
-		this.depth = depth;
+	public constructor(filename: string) {
+		this.filename = filename;
 	}
 
-	import(name: string, from: string) {
-		const a = this.imports.get(from);
+	import(name: string, from: WithHelper<string, ModulePathBuilder>) {
+		const f = resolveHelper(from, new ModulePathBuilder(this.filename));
+		const a = this.imports.get(f);
 		if (a) a.push(name);
-		else this.imports.set(from, [name]);
+		else this.imports.set(f, [name]);
 
-		return expandTsExpression(ts.factory.createIdentifier(name));
+		return new ExpressionStartBuilder().id(name);
 	}
 
-	importType(name: string, from: string) {
-		const a = this.importTypes.get(from);
+	importType(name: string, from: WithHelper<string, ModulePathBuilder>) {
+		const f = resolveHelper(from, new ModulePathBuilder(this.filename));
+		const a = this.importTypes.get(f);
 		if (a) a.push(name);
-		else this.importTypes.set(from, [name]);
+		else this.importTypes.set(f, [name]);
 
-		return ts.factory.createIdentifier(name);
+		return new TypeBuilder().ref(name);
 	}
 
 	*toImports() {
@@ -44,7 +48,7 @@ export class Imports {
 						)
 					)
 				),
-				ts.factory.createStringLiteral(this.relativePath(from)),
+				ts.factory.createStringLiteral(from),
 				undefined
 			);
 		}
@@ -61,13 +65,9 @@ export class Imports {
 						)
 					)
 				),
-				ts.factory.createStringLiteral(this.relativePath(from)),
+				ts.factory.createStringLiteral(from),
 				undefined
 			);
 		}
-	}
-
-	private relativePath(path: string) {
-		return joinPath(...Array(this.depth).fill(".."), path);
 	}
 }

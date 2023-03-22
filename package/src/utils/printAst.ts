@@ -1,6 +1,7 @@
 import ts from "typescript";
+import { TsGenieParam, resolveParam } from "../builders/utils.js";
 
-export const printAst = (...nodes: (ts.Node | undefined)[]) => {
+export const printAst = (...nodes: TsGenieParam<ts.Node | undefined>[]) => {
 	const sourceFile = ts.createSourceFile(
 		"unknown.ts",
 		"",
@@ -11,6 +12,6 @@ export const printAst = (...nodes: (ts.Node | undefined)[]) => {
 	const p = ts.createPrinter();
 	return nodes
 		.filter(Boolean)
-		.map((n) => p.printNode(ts.EmitHint.Unspecified, n!, sourceFile))
+		.map((n) => p.printNode(ts.EmitHint.Unspecified, resolveParam(n)!, sourceFile))
 		.join("\n");
 };
