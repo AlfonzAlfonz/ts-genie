@@ -43,7 +43,7 @@ export class InterfaceBuilder extends BuilderBase<State> {
 	public typeParameter(
 		name: string,
 		_extends?: TsGenieParam<ResolvableType>,
-		opts: { defaultType?: TypeNode } = {}
+		opts: { defaultType?: ResolvableType } = {}
 	) {
 		const c = this.clone();
 		c._state.typeParameters = [
@@ -52,7 +52,7 @@ export class InterfaceBuilder extends BuilderBase<State> {
 				[],
 				name,
 				resolveType(resolveParam(_extends)),
-				opts.defaultType
+				resolveType(resolveParam(opts.defaultType))
 			),
 		];
 		return c;
