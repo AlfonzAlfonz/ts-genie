@@ -28,9 +28,9 @@ export const isWithInto = (x: unknown): x is WithInto<unknown> =>
 export const isHelper = <Type, Helper>(x: WithHelper<Type, Helper>): x is (h: Helper) => Type =>
 	typeof x === "function";
 
-const keywordTypeMap = {
+export const keywordTypeMap = {
 	any: () => ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
-	bigInt: () => ts.factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword),
+	bigint: () => ts.factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword),
 	boolean: () => ts.factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword),
 	never: () => ts.factory.createKeywordTypeNode(ts.SyntaxKind.NeverKeyword),
 	number: () => ts.factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),

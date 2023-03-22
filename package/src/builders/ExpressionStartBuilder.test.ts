@@ -2,23 +2,20 @@ import { printAst } from "../utils/printAst.js";
 import { ExpressionStartBuilder } from "./ExpressionStartBuilder.js";
 
 test("unary prefix", () => {
-	const e = new ExpressionStartBuilder().id("a").prefixOp("+");
-
-	expect(printAst(e)).toBe("+a");
+	const e = new ExpressionStartBuilder();
+	expect(printAst(e.operation("+", e.id("a")))).toBe("+a");
 });
 
 test("unary postfix", () => {
-	const e = new ExpressionStartBuilder().id("a").postfixOp("++");
+	const e = new ExpressionStartBuilder();
 
-	expect(printAst(e)).toBe("a++");
+	expect(printAst(e.operation(e.id("a"), "++"))).toBe("a++");
 });
 
 test("binary", () => {
-	const bin = new ExpressionStartBuilder()
-		.id("a")
-		.binaryOp("+", new ExpressionStartBuilder().id("b"));
+	const e = new ExpressionStartBuilder();
 
-	expect(printAst(bin)).toBe("a + b");
+	expect(printAst(e.operation(e.id("a"), "+", e.id("b")))).toBe("a + b");
 });
 
 test("ternary", () => {
@@ -31,4 +28,16 @@ test("ternary", () => {
 	);
 
 	expect(printAst(e)).toBe("a ? b : c");
+});
+
+test("values", () => {
+	const e = new ExpressionStartBuilder();
+
+	expect(printAst(e.string("aaa"))).toBe(`"aaa"`);
+	expect(printAst(e.number(5))).toBe("5");
+	expect(printAst(e.true())).toBe("true");
+	expect(printAst(e.false())).toBe("false");
+	expect(printAst(e.null())).toBe("null");
+	expect(printAst(e.object())).toBe("{}");
+	expect(printAst(e.arrowFunction().block([]))).toBe("() => { }");
 });

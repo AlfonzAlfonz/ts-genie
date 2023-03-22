@@ -11,6 +11,12 @@ export class StatementBuilder extends BuilderBase {
 		super({});
 	}
 
+	public expr(expression: WithHelper<TsGenieParam<ts.Expression>, ExpressionStartBuilder>) {
+		return ts.factory.createExpressionStatement(
+			resolveParam(resolveHelper(expression, new ExpressionStartBuilder()))
+		);
+	}
+
 	public return(expression: WithHelper<TsGenieParam<ts.Expression>, ExpressionStartBuilder>) {
 		return ts.factory.createReturnStatement(
 			resolveParam(resolveHelper(expression, new ExpressionStartBuilder()))

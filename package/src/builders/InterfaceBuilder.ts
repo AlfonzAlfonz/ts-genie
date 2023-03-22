@@ -10,6 +10,7 @@ import {
 } from "./utils.js";
 import { PropertyTypeBuilder } from "./PropertyTypeBuilder.js";
 import { BuilderBase } from "./BaseBuilder.js";
+import { TypeBuilder } from "./TypeBuilder.js";
 
 interface State {
 	modifiers: ts.ModifierLike[];
@@ -78,7 +79,7 @@ export class InterfaceBuilder extends BuilderBase<State> {
 
 	public prop(
 		name: string | ts.PropertyName,
-		type: TsGenieParam<ResolvableType>,
+		type: WithHelper<TsGenieParam<ResolvableType>, TypeBuilder>,
 		opts: { optional?: boolean } = {}
 	) {
 		const c = this.clone();
@@ -88,7 +89,7 @@ export class InterfaceBuilder extends BuilderBase<State> {
 				[],
 				name,
 				opts.optional ? ts.factory.createToken(ts.SyntaxKind.QuestionToken) : undefined,
-				resolveType(resolveParam(type))
+				resolveType(resolveParam(resolveHelper(type, new TypeBuilder())))
 			),
 		];
 		return c;

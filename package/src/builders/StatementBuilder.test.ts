@@ -15,9 +15,9 @@ test("typeAlias", () => {
 });
 
 test("const", () => {
-	const c = new StatementBuilder().const("a").type("number");
+	const c = new StatementBuilder().const("a").export().type("number");
 
-	expect(printAst(c)).toBe(`const a: number;`);
+	expect(printAst(c)).toBe(`export const a: number;`);
 });
 
 test("let", () => {
