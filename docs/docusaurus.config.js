@@ -4,11 +4,11 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "TS-Gen",
+  title: "TypeScript Genie",
   tagline: "Set of utilities to help with generating TS files ",
-  favicon: "img/favicon.ico",
+  favicon: "img/favicon.png",
 
-  url: "https://ts-gen.vercel.app/",
+  url: "https://ts-genie.vercel.app/",
   baseUrl: "/",
 
   onBrokenLinks: "throw",
@@ -19,6 +19,21 @@ const config = {
     locales: ["en"],
   },
 
+  plugins: [
+    // ....
+    async function myPlugin(context, options) {
+      return {
+        name: "docusaurus-tailwindcss",
+        configurePostCss(postcssOptions) {
+          // Appends TailwindCSS and AutoPrefixer.
+          postcssOptions.plugins.push(require("tailwindcss"));
+          postcssOptions.plugins.push(require("autoprefixer"));
+          return postcssOptions;
+        },
+      };
+    },
+  ],
+
   presets: [
     [
       "classic",
@@ -26,14 +41,17 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
-          editUrl: "https://github.com/AlfonzAlfonz/ts-gen/docs",
+          editUrl: "https://github.com/AlfonzAlfonz/ts-genie/tree/main/docs",
         },
         // blog: {
         //   showReadingTime: true,
         //   editUrl: "https://github.com/AlfonzAlfonz/ts-gen/docs",
         // },
         theme: {
-          customCss: require.resolve("./src/css/custom.css"),
+          customCss: [
+            require.resolve("./src/css/custom.css"),
+            require.resolve("./src/css/tailwind.css"),
+          ],
         },
       }),
     ],
@@ -43,22 +61,30 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       image: "img/docusaurus-social-card.jpg",
+      defaultMode: "dark",
+      disableSwitch: true,
+      respectPrefersColorScheme: false,
       navbar: {
-        title: "My Site",
+        title: "Typescript Genie",
         logo: {
-          alt: "My Site Logo",
-          src: "img/logo.svg",
+          alt: "Typescript Genie Logo",
+          src: "img/ts-genie-small.png",
         },
         items: [
           {
             type: "doc",
-            docId: "intro",
+            docId: "quick-start",
             position: "left",
-            label: "Documentation",
+            label: "Docs",
+          },
+          {
+            href: "https://github.com/AlfonzAlfonz/ts-genie/tree/main/examples",
+            position: "left",
+            label: "Examples",
           },
           // { to: "/blog", label: "Blog", position: "left" },
           {
-            href: "https://github.com/AlfonzAlfonz/ts-gen",
+            href: "https://github.com/AlfonzAlfonz/ts-genie",
             label: "GitHub",
             position: "right",
           },
@@ -66,26 +92,6 @@ const config = {
       },
       footer: {
         style: "dark",
-        links: [
-          {
-            title: "Docs",
-            items: [
-              {
-                label: "Tutorial",
-                to: "/docs/intro",
-              },
-            ],
-          },
-          {
-            title: "More",
-            items: [
-              {
-                label: "GitHub",
-                href: "https://github.com/AlfonzAlfonz/ts-gen",
-              },
-            ],
-          },
-        ],
         copyright: `Denis Homolík, Built with Docusaurus.`,
       },
       prism: {
