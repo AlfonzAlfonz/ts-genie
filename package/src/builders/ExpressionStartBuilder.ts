@@ -9,7 +9,15 @@ import {
 	resolveOperationToken,
 } from "./ExpressionBuilder.js";
 import { ObjectLiteralExpressionBuilder } from "./ObjectLiteralExpressionBuilder.js";
-import { TsGenieParam, resolveParam } from "./utils.js";
+import {
+	ResolvableType,
+	TsGenieParam,
+	WithHelper,
+	resolveHelper,
+	resolveParam,
+	resolveType,
+} from "./utils.js";
+import { TypeBuilder } from "./TypeBuilder.js";
 
 export class ExpressionStartBuilder extends BuilderBase {
 	public constructor() {
@@ -118,5 +126,20 @@ export class ExpressionStartBuilder extends BuilderBase {
 
 	public arrowFunction() {
 		return new ArrowFunctionBuilder();
+	}
+
+	public new(
+		_class: TsGenieParam<ts.Expression | string>,
+		params?: WithHelper<TsGenieParam<ts.Expression>[], ExpressionStartBuilder>,
+		opts: { typeParameters?: WithHelper<TsGenieParam<ResolvableType>[], TypeBuilder> } = {}
+	) {
+		const c = resolveParam(_class);
+		return new ExpressionBuilder(
+			ts.factory.createNewExpression(
+				typeof c === "string" ? this.id(c).into() : c,
+				resolveHelper(opts.typeParameters, new TypeBuilder())?.map(resolveParam).map(resolveType),
+				resolveHelper(params, new ExpressionStartBuilder())?.map(resolveParam)
+			)
+		);
 	}
 }

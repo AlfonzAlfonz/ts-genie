@@ -18,9 +18,7 @@ export interface FunctionBuilderBaseState {
 	type?: ts.TypeNode;
 }
 
-export abstract class FunctionBuilderBase<
-	T extends FunctionBuilderBaseState
-> extends BuilderBase<T> {
+export abstract class FunctionBuilderBase<T extends FunctionBuilderBaseState> extends BuilderBase<T> {
 	public param(
 		name: string,
 		type: WithHelper<TsGenieParam<ResolvableType>, TypeBuilder>,
@@ -67,6 +65,12 @@ export abstract class FunctionBuilderBase<
 				resolveParam(opts.initializer)
 			),
 		];
+		return c;
+	}
+
+	public returns(type: WithHelper<TsGenieParam<ResolvableType>, TypeBuilder>) {
+		const c = this.clone();
+		c._state.type = resolveType(resolveParam(resolveHelper(type, new TypeBuilder())));
 		return c;
 	}
 }

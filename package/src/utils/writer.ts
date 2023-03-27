@@ -1,6 +1,6 @@
+import fs from "fs/promises";
+import { join, parse } from "path";
 import ts from "typescript";
-import { promises as fs } from "fs";
-import { parse, join } from "path";
 import { TsGenieParam, resolveParam } from "../builders/utils.js";
 
 /**
@@ -9,37 +9,32 @@ import { TsGenieParam, resolveParam } from "../builders/utils.js";
  * @returns handle object
  */
 export const getWriter = (path: string) => {
-	let sourceFile: ts.SourceFile;
-	let handler: fs.FileHandle;
-	let filePath: string;
-	const printer = ts.createPrinter();
-
 	const buffer: (ts.Node | string | undefined)[] = [];
 
 	return {
-		open: async () => {
-			filePath = path;
-			const filename = join(process.cwd(), filePath);
+		writeImports: (...nodes: TsGenieParam<ts.Node>[]) =>
+			buffer.unshift(...nodes.map(resolveParam), "\n"),
+		write: (...nodes: (TsGenieParam<ts.Node> | string | undefined)[]) =>
+			buffer.push(...nodes.flatMap((n) => [resolveParam(n), "\n"])),
+		getOutput: () => {},
+		close: async () => {
+			const filename = join(process.cwd(), path);
 
-			sourceFile = ts.createSourceFile(
+			const sourceFile = ts.createSourceFile(
 				filename,
 				"",
 				ts.ScriptTarget.ESNext,
 				true,
 				ts.ScriptKind.TS
 			);
+
 			const { dir } = parse(filename);
 			await fs.mkdir(dir, { recursive: true });
 
-			handler = await fs.open(filename, "w+");
+			const handler = await fs.open(filename, "w+");
 			await handler.write("/* eslint-disable max-len */\n");
-		},
-		getFilePath: () => filePath,
-		writeImports: (...nodes: TsGenieParam<ts.Node>[]) =>
-			buffer.unshift(...nodes.map(resolveParam), "\n"),
-		write: (...nodes: (TsGenieParam<ts.Node> | string | undefined)[]) =>
-			buffer.push(...nodes.flatMap((n) => [resolveParam(n), "\n"])),
-		close: async () => {
+
+			const printer = ts.createPrinter();
 			await handler.write(
 				buffer
 					.filter(Boolean)

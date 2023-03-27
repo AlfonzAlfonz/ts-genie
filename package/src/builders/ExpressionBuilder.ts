@@ -9,6 +9,7 @@ import {
 	resolveType,
 } from "./utils.js";
 import { ExpressionStartBuilder } from "./ExpressionStartBuilder.js";
+import { TypeBuilder } from "./TypeBuilder.js";
 
 interface State {
 	expression: ts.Expression;
@@ -31,13 +32,16 @@ export class ExpressionBuilder extends BuilderBase<State> {
 
 	public call(
 		params?: WithHelper<TsGenieParam<ts.Expression>[], ExpressionStartBuilder>,
-		opts: { typeParameters?: TsGenieParam<ResolvableType>[]; optional?: boolean } = {}
+		opts: {
+			typeParameters?: WithHelper<TsGenieParam<ResolvableType>[], TypeBuilder>;
+			optional?: boolean;
+		} = {}
 	) {
 		return new ExpressionBuilder(
 			ts.factory.createCallChain(
 				this._state.expression,
 				opts.optional ? ts.factory.createToken(ts.SyntaxKind.QuestionDotToken) : undefined,
-				opts.typeParameters?.map(resolveParam).map(resolveType),
+				resolveHelper(opts.typeParameters, new TypeBuilder())?.map(resolveParam).map(resolveType),
 				resolveHelper(params, new ExpressionStartBuilder())?.map(resolveParam)
 			)
 		);
@@ -79,6 +83,15 @@ export class ExpressionBuilder extends BuilderBase<State> {
 				resolveParam(isTruthy),
 				ts.factory.createToken(ts.SyntaxKind.ColonToken),
 				resolveParam(isFalsy)
+			)
+		);
+	}
+
+	public as(type: WithHelper<TsGenieParam<ResolvableType>, TypeBuilder>) {
+		return new ExpressionBuilder(
+			ts.factory.createAsExpression(
+				this._state.expression,
+				resolveType(resolveParam(resolveHelper(type, new TypeBuilder())))
 			)
 		);
 	}

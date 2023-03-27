@@ -14,7 +14,7 @@ test("param", () => {
 	expect(printAst(fn)).toBe("function echo(val: any) { console.log(val); }");
 });
 
-test("param", () => {
+test("params", () => {
 	const fn = new FunctionBuilder("add")
 		.params((p) => [p.param("a", "number"), p.param("b", "number")])
 		.block((s) => [s.return((e) => e.operation(e.id("a"), "+", e.id("b")))]);

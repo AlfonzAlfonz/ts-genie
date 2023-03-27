@@ -3,6 +3,7 @@ import { ExpressionStartBuilder } from "./ExpressionStartBuilder.js";
 import { FunctionBuilderBase, FunctionBuilderBaseState } from "./FunctionBuilderBase.js";
 import { StatementBuilder } from "./StatementBuilder.js";
 import {
+	ResolvableType,
 	TsGenieParam,
 	WithHelper,
 	isHelper,
@@ -10,6 +11,7 @@ import {
 	resolveHelper,
 	resolveParam,
 } from "./utils.js";
+import { TypeBuilder } from "./TypeBuilder.js";
 
 interface State extends FunctionBuilderBaseState {
 	body?: ts.ConciseBody;
@@ -22,6 +24,14 @@ export class ArrowFunctionBuilder extends FunctionBuilderBase<State> {
 			typeParameters: [],
 			parameters: [],
 		});
+	}
+
+	public param(
+		name: string,
+		type?: WithHelper<TsGenieParam<ResolvableType>, TypeBuilder>,
+		opts: { optional?: boolean; initializer?: TsGenieParam<ts.Expression> } = {}
+	) {
+		return super.param(name, type!, opts);
 	}
 
 	public expr(expression: WithHelper<TsGenieParam<ts.Expression>, ExpressionStartBuilder>) {
@@ -51,15 +61,13 @@ export class ArrowFunctionBuilder extends FunctionBuilderBase<State> {
 	}
 
 	public into() {
-		if (!this._state.body) throw new Error("Missing body");
-
 		return ts.factory.createArrowFunction(
 			this._state.modifiers,
 			this._state.typeParameters,
 			this._state.parameters,
 			this._state.type,
 			ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
-			this._state.body
+			this._state.body ?? ts.factory.createBlock([])
 		);
 	}
 }

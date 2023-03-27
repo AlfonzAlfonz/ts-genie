@@ -9,6 +9,7 @@ import {
 	resolveParam,
 	resolveType,
 } from "./utils.js";
+import { TypeReferenceBuilder } from "./TypeReferenceBuilder.js";
 
 export class TypeBuilder extends BuilderBase {
 	public constructor() {
@@ -26,6 +27,6 @@ export class TypeBuilder extends BuilderBase {
 	}
 
 	public ref(name: string) {
-		return ts.factory.createTypeReferenceNode(name);
+		return new TypeReferenceBuilder(name);
 	}
 }

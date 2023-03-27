@@ -32,8 +32,6 @@ export class TsGenieProject {
 		for (const [filename, [imports, statements]] of this.files) {
 			const w = getWriter(this.resolvePath(filename));
 
-			await w.open();
-
 			w.write(...statements);
 			w.writeImports(...imports.toImports());
 

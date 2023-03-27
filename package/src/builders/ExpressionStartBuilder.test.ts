@@ -41,3 +41,9 @@ test("values", () => {
 	expect(printAst(e.object())).toBe("{}");
 	expect(printAst(e.arrowFunction().block([]))).toBe("() => { }");
 });
+
+test("new", () => {
+	const e = new ExpressionStartBuilder().new("URL", (e) => [e.string("http://example.com")]);
+
+	expect(printAst(e)).toBe(`new URL("http://example.com")`);
+});

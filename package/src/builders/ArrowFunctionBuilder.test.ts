@@ -34,3 +34,10 @@ test("spread params", () => {
 
 	expect(printAst(af)).toBe(`(...segments: string[]) => segments.join("/")`);
 });
+
+
+test("implicit param", () => {
+	const af = new ArrowFunctionBuilder().param("a").expr((e) => e.id("a"));
+
+	expect(printAst(af)).toBe(`a => a`);
+});

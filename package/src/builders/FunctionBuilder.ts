@@ -2,11 +2,11 @@ import ts from "typescript";
 import { FunctionBuilderBase, FunctionBuilderBaseState } from "./FunctionBuilderBase.js";
 import { StatementBuilder } from "./StatementBuilder.js";
 import {
-	WithHelper,
 	TsGenieParam,
+	WithHelper,
 	isHelper,
-	resolveHelper,
 	isWithInto,
+	resolveHelper,
 	resolveParam,
 } from "./utils.js";
 
@@ -41,8 +41,6 @@ export class FunctionBuilder extends FunctionBuilderBase<State> {
 	}
 
 	public into() {
-		if (!this._state.body) throw new Error("Missing body");
-
 		return ts.factory.createFunctionDeclaration(
 			this._state.modifiers,
 			this._state.generator,
