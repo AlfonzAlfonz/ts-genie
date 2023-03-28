@@ -29,4 +29,16 @@ export class TypeBuilder extends BuilderBase {
 	public ref(name: string) {
 		return new TypeReferenceBuilder(name);
 	}
+
+	public union(types: WithHelper<TsGenieParam<ResolvableType>[], TypeBuilder>) {
+		return ts.factory.createUnionTypeNode(
+			resolveHelper(types, new TypeBuilder()).map(resolveParam).map(resolveType)
+		);
+	}
+
+	public intersec(types: WithHelper<TsGenieParam<ResolvableType>[], TypeBuilder>) {
+		return ts.factory.createIntersectionTypeNode(
+			resolveHelper(types, new TypeBuilder()).map(resolveParam).map(resolveType)
+		);
+	}
 }

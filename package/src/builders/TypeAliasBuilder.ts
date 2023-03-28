@@ -26,6 +26,15 @@ export class TypeAliasBuilder extends BuilderBase<State> {
 		});
 	}
 
+	public export() {
+		const c = this.clone();
+		c._state.modifiers = [
+			...c._state.modifiers,
+			ts.factory.createToken(ts.SyntaxKind.ExportKeyword),
+		];
+		return c;
+	}
+
 	public type(type: WithHelper<TsGenieParam<ResolvableType>, TypeBuilder>) {
 		const c = this.clone();
 		c._state.type = resolveType(resolveParam(resolveHelper(type, new TypeBuilder())));
