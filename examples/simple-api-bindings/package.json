@@ -1,5 +1,6 @@
 {
   "name": "@ts-genie/simple-api-bindings",
+  "private": true,
   "version": "1.0.0",
   "license": "ISC",
   "type": "module",
@@ -7,11 +8,11 @@
     "generate": "ts-node --esm ./generate.ts"
   },
   "dependencies": {
-    "ts-genie": "workspace:*",
-    "ts-node": "^10.9.1",
     "typescript": "^5.0.2"
   },
   "devDependencies": {
-    "@types/node": "^18.15.2"
+    "@types/node": "^18.15.2",
+    "ts-genie": "workspace:*",
+    "ts-node": "^10.9.1"
   }
 }
