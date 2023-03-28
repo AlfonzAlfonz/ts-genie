@@ -1,0 +1,105 @@
+---
+sidebar_position: 2
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+
+# Quick start
+
+:::info
+
+You can find source code to this section in the examples:
+
+ - [quickstart-esm](https://github.com/AlfonzAlfonz/ts-genie/tree/main/examples/quickstart-esm)
+ - [quickstart-commonjs](https://github.com/AlfonzAlfonz/ts-genie/tree/main/examples/quickstart-commonjs)
+
+:::
+
+First let's install `ts-genie` with a package manager.
+
+<Tabs>
+<TabItem value="pnpm" label="pnpm">
+
+```bash
+pnpm i -D ts-genie
+```
+
+</TabItem>
+<TabItem value="npm" label="npm">
+
+```bash
+npm install --D ts-genie
+```
+
+</TabItem>
+<TabItem value="yarn" label="yarn">
+
+```bash
+yarn add -D ts-genie
+```
+
+</TabItem>
+</Tabs>
+
+## Project setup
+
+This quickstart assumes that you have your environment set up for executing typescript files. If you need set up your project first, you can look at the `quickstart` examples mentioned above.
+
+
+First, let's create a new script named `generate.ts` and add this to your `package.json` scripts.
+
+```json title="package.json"
+{
+  "scripts": {
+    "generate": "ts-node generate.ts"
+  }
+}
+```
+
+Then add this code to your `generated.ts`:
+
+```ts title="generate.ts"
+import { tsg } from "ts-genie";
+
+// Initialize a new project inside of a "generated" folder
+const tsgen = tsg.init("./generated");
+
+// Create a new module inside of the root folder
+tsgen.sourceFile("./index.ts", function * (m) {
+
+});
+
+// This saves generated files to the file system
+await tsgen.flush();
+```
+
+This instructs TS Genie to create new TsGenieProject instance in the generated folder and them creates empty `index.ts` file inside of it. Second argument may be any function with parameter `ModuleBuilder` and returns `Iterable`. You can return for example an array or as in this example use a [generator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*).
+
+Now let's add some generated code.
+
+```ts title="generate.ts" {6-9}
+import { tsg } from "ts-genie";
+
+const tsgen = tsg.init("./generated");
+
+tsgen.sourceFile("./index.ts", function * (m) {
+  yield m.interface("Person")
+    .export()
+    .prop("firstname", "string")
+    .prop("age", "number", { optional: true });
+});
+
+await tsgen.flush();
+
+```
+
+Now if you run your generate command, TS Genie will create `generated/index.ts` file with Person interface.
+
+```ts title="generated/index.ts"
+export interface Person {
+  firstname: string;
+  age?: number;
+}
+```

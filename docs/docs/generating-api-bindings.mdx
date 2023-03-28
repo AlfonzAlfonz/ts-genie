@@ -1,0 +1,366 @@
+---
+sidebar_position: 5
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Generating API bindings
+
+:::info
+
+You can find source code to this section in the examples:
+
+ - [simple-api-bindings](https://github.com/AlfonzAlfonz/ts-genie/tree/main/examples/simple-api-bindings)
+
+:::
+
+Quick start showed how to generate a simple inferface. This example is more near to a real-world usage and demostrates how to generate API binding from a *simplified* API declaration (Usually, some standard format would be used, such as OpenAPI). This is the data format used in this example.
+
+## Input
+
+```ts
+const endpoints = [
+  {
+    name: "getUser",
+    path: "/api/user",
+    query: { id: "number" },
+    returns: {
+      id: "number",
+      firstname: "string",
+      lastname: "string",
+    },
+  },
+  {
+    name: "getPost",
+    path: "/api/post",
+    query: { id: "number" },
+    returns: {
+      id: "number",
+      title: "string",
+      publishedAt: "string",
+      text: "string",
+    },
+  },
+] as const;
+```
+
+## Output
+
+At the end, the final generated output will look like this.
+
+```ts title="./generated/index.ts"
+import { fetcher } from "../fetcher.js";
+
+export interface GetUserResponse {
+    id: number;
+    firstname: string;
+    lastname: string;
+}
+
+export const getUserRequest = (id: number) => 
+  fetcher<GetUserResponse>("/api/user", { id: id.toString() });
+
+export interface GetPostResponse {
+    id: number;
+    title: string;
+    publishedAt: string;
+    text: string;
+}
+
+export const getPostRequest = (id: number) => 
+  fetcher<GetPostResponse>("/api/post", { id: id.toString() });
+```
+
+## Fetcher
+
+When creating binding for an API it is best practice to make things as simple as possible in the generated code, so it is preferable to create a `fetcher` function first, to wrap fetch inside it.
+
+```ts title="fetcher.ts"
+export const fetcher = <T>(
+  path: string,
+  query: Record<string, string>
+): Promise<T> =>
+  fetch(path + "?" + new URLSearchParams(query).toString())
+    .then((r) => r.json());
+```
+
+## Setup
+
+First create `generate.ts` file with a basic project setup:
+
+```ts
+import { tsg } from "ts-genie";
+
+const tsgen = tsg.init("./generated");
+
+tsgen.sourceFile("./index.ts", function* (m) {
+
+});
+
+await tsgen.flush();
+```
+
+## createRequest
+
+Then create a `createRequest.ts` for logic of creating an endpoint.
+
+```ts title="createRequest.ts"
+export function* createRequest(
+  mod: ModuleBuilder,
+  name: string,
+  path: string,
+  query: Record<string, ResolvableType> | undefined,
+  returnType: Record<string, ResolvableType>
+) {
+
+}
+
+const capitalize = (s: string) => s[0].toLocaleUpperCase() + s.slice(1);
+
+```
+
+Each parameter represents:
+
+- `mod: ModuleBuilder` represent the current module, it is used to create top-level statements and to import code from other files.
+- `name: string` is the name of the endpoint
+- `path: string` is the url path of the enpoint
+- `query: Record<string, ResolvableType> | undefined` is dictionary of query parameters with key representing the name and the value is type of the parameter
+- `returnType: Record<string, ResolvableType>` represent an object that the endpoint returns (for simplicity it does not includes nested objects)
+
+## Response Interface
+
+To create an interface inside the module yield a `mod.interface()` inside of the `createRequest` generator.
+
+<Tabs>
+<TabItem value="code" label="Code">
+
+```ts
+  yield mod
+    .interface(`${capitalize(name)}Response`)
+    .export()
+    .props((props) =>
+      Object.entries(returnType).map(([key, type]) => props.prop(key, type))
+    );
+```
+
+</TabItem>
+<TabItem value="output" label="Output">
+
+```ts
+export interface GetUserResponse {
+    id: number;
+    firstname: string;
+    lastname: string;
+}
+
+export interface GetPostResponse {
+    id: number;
+    title: string;
+    publishedAt: string;
+    text: string;
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Request Function
+
+The api request should be represented by an exported constant with arrow function, with correct parameters passed. To create a constant with an arrow function yield `mod.const()` from a `createRequest` generator.
+
+<Tabs>
+<TabItem value="code" label="Code">
+
+```ts
+yield mod
+  .const(`${name}Request`)
+  .export()
+  .value((expressions) =>
+    expressions.arrowFunction()
+  );
+```
+
+</TabItem>
+<TabItem value="output" label="Output">
+
+```ts
+export const getUserRequest = () => {};
+
+export const getPostRequest = () => {};
+```
+
+</TabItem>
+</Tabs>
+
+Now let's add parameters from the query object:
+
+
+<Tabs>
+<TabItem value="code" label="Code">
+
+```ts {7-13}
+yield mod
+  .const(`${name}Request`)
+  .export()
+  .value((expressions) =>
+    expressions
+      .arrowFunction()
+      .params((params) =>
+        query
+          ? Object.entries(query).map(([key, type]) =>
+              params.param(key, type)
+            )
+          : []
+      )
+  );
+```
+
+</TabItem>
+<TabItem value="output" label="Output">
+
+```ts
+export const getUserRequest = (id: number) => {};
+
+export const getPostRequest = (id: number) => {};
+```
+
+</TabItem>
+</Tabs>
+
+
+`expressions` is builder which TS-Genie constructs for you to help you create new expressions, this pattern is used across the whole code base and let's you to have access to right builders where you need. In some cases TS-Genie is not able to create them for you but you can access basic builders via `import { tsg } from "ts-genie";`
+
+Then add body to the arrow function which will call the fetcher function.
+
+<Tabs>
+<TabItem value="code" label="Code">
+
+```ts {14-18}
+yield mod
+  .const(`${name}Request`)
+  .export()
+  .value((expressions) =>
+    expressions
+      .arrowFunction()
+      .params((params) =>
+        query
+          ? Object.entries(query).map(([key, type]) =>
+              params.param(key, type)
+            )
+          : []
+      )
+      .expr(
+        mod
+          .import("fetcher", (m) => m.fromRoot("../fetcher.js"))
+          .call()
+      )
+  );
+```
+
+</TabItem>
+<TabItem value="output" label="Output">
+
+```ts
+export const getUserRequest = (id: number) => fetcher();
+
+export const getPostRequest = (id: number) => fetcher();
+```
+
+</TabItem>
+</Tabs>
+
+
+`.expr()` function on arrow function builder create "one-line" body for the function containing single expression, to add full body use `.block()` instead.
+
+Method `mod.import(name, from)` creates new identifier and automaticaly creates an import statement at the beginning of the module. If you want to import a type use `mod.importType(name, from)` instead.
+
+Now the only thing left is to add parameters and type parameters to the `fetcher` call.
+
+<Tabs>
+<TabItem value="code" label="Code">
+
+```ts {15-34}
+  // ...
+    expressions
+      .arrowFunction()
+      .params((params) =>
+        query
+          ? Object.entries(query).map(([key, type]) =>
+              params.param(key, type)
+            )
+          : []
+      )
+      .expr(
+        mod
+          .import("fetcher", (m) => m.fromRoot("../fetcher.js"))
+          .call(
+            [
+              expressions.string(path),
+              expressions
+                .object()
+                .props((props) =>
+                  query
+                    ? Object.keys(query).map((key) =>
+                        props.prop(
+                          key,
+                          expressions.id(key).access("toString").call()
+                        )
+                      )
+                    : []
+                ),
+            ],
+            {
+              typeParameters: (types) => [
+                types.ref(`${capitalize(name)}Response`),
+              ],
+            }
+          )
+      )
+```
+
+</TabItem>
+<TabItem value="output" label="Output">
+
+```ts
+export const getUserRequest = (id: number) => 
+  fetcher<GetUserResponse>("/user", { id: id.toString() });
+
+export const getPostRequest = (id: number) => 
+  fetcher<GetPostResponse>("/post", { id: id.toString() });
+```
+
+</TabItem>
+</Tabs>
+
+This calls the fetcher with a path parameter and then creates an object literal containg all query parameters called with a toString() method. Also the fetcher is called with a response type parameter which ensures a correct return type.
+
+## Calling createRequest
+
+To tie the things together, just iterate over the input data and call the `createRequest` generator inside of the module generator.
+
+```ts
+tsgen.sourceFile("./index.ts", function* (m) {
+  for (const endpoint of endpoints) {
+    yield* createRequest(
+      m,
+      endpoint.name,
+      endpoint.path,
+      endpoint.query,
+      endpoint.returns
+    );
+  }
+});
+```
+
+## Running
+
+Now you can add `generate` command to the `package.json`, to simplify running the code-gen.
+
+```json
+  "scripts": {
+    "generate": "ts-node --esm ./generate.ts"
+  },
+```
+
+After you run the generate command a `generated` folder should appear, containing a `index.ts` with all the predefined endpoints.

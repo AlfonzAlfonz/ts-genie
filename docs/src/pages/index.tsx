@@ -41,10 +41,11 @@ function HomepageHeader() {
               <CodeBlock
                 language="ts"
                 children={`
-yield m.interface("Person")
+m.interface("Person")
   .export()
   .prop("firstname", "string")
-  .prop("age", "number", { optional: true });`}
+  .prop("age", "number", { optional: true });
+  `}
               />
             </TabItem>
             <TabItem value="output" label="Output" className="pt-0">
@@ -54,7 +55,9 @@ yield m.interface("Person")
 export interface Person {
   firstname: string;
   age?: number;
-}`}
+}
+
+`}
               />
             </TabItem>
           </Tabs>

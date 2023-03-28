@@ -43,10 +43,6 @@ const config = {
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: "https://github.com/AlfonzAlfonz/ts-genie/tree/main/docs",
         },
-        // blog: {
-        //   showReadingTime: true,
-        //   editUrl: "https://github.com/AlfonzAlfonz/ts-gen/docs",
-        // },
         theme: {
           customCss: [
             require.resolve("./src/css/custom.css"),
@@ -82,7 +78,6 @@ const config = {
             position: "left",
             label: "Examples",
           },
-          // { to: "/blog", label: "Blog", position: "left" },
           {
             href: "https://github.com/AlfonzAlfonz/ts-genie",
             label: "GitHub",
@@ -92,7 +87,7 @@ const config = {
       },
       footer: {
         style: "dark",
-        copyright: `Denis Homolík, Built with Docusaurus.`,
+        copyright: `created by @AlfonzAlfonz, docs built with Docusaurus.`,
       },
       prism: {
         theme: lightCodeTheme,
