@@ -17,8 +17,8 @@ Returns: `ts.ExportDeclaration`
 Creates an export declaration. Contrary to the [import](#import) and [importType](#importType), exports are not grouped by from parameter.
 
 ```ts title="example"
-mod.export("*", "./types.js"); // outputs: export * from "./types.js";
-mod.export("userRequest", "./requests.js") // outputs: export { userRequest } from "request.js";
+mod.export("*", "./types.js"); // returns: export * from "./types.js";
+mod.export("userRequest", "./requests.js") // returns: export { userRequest } from "request.js";
 
 ```
 
@@ -29,8 +29,8 @@ Returns: ts.ExportDeclaration
 Creates an export declaration. Contrary to the [import](#import) and [importType](#importType), exported types are not grouped by from parameter.
 
 ```ts title="example"
-mod.exportType("*", "./types.js"); // outputs: export type * from "./types.js";
-mod.exportType("userRequest", "./requests.js") // outputs: export type { userRequest } from "request.js";
+mod.exportType("*", "./types.js"); // returns: export type * from "./types.js";
+mod.exportType("userRequest", "./requests.js") // returns: export type { userRequest } from "request.js";
 
 ```
 
@@ -42,9 +42,9 @@ Create a new expression and add an import statement to top of the module.
 
 ```ts title="example"
 mod.import("fetcher", "../fetcher.js").call(); 
-// outputs at the start of a module:
+// returns at the start of a module:
 // import { fetcher } from "../fetcher.js";
-// outputs:
+// returns:
 // fetcher()
 
 mod.import("fetcher", p => p.fromRoot("../fetcher.js")); // path is resolved relatively to the root folder
@@ -58,9 +58,9 @@ Create a new type reference and add an import statement to top of the module.
 
 ```ts title="example"
 mod.import("fetcher", "../fetcher.js").call(); 
-// outputs at the start of a module:
+// returns at the start of a module:
 // import { fetcher } from "../fetcher.js";
-// outputs:
+// returns:
 // fetcher()
 
 mod.import("fetcher", p => p.fromRoot("../fetcher.js")); // path is resolved relatively to the root folder

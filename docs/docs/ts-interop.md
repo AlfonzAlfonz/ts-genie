@@ -24,7 +24,7 @@ const op = tsg.expr.operation(
   tsg.expr.id("b")
 );
 
-console.log(printAst(op)); // outputs: a! + b
+console.log(printAst(op)); // returns: a! + b
 
 ```
 
@@ -52,6 +52,6 @@ const now = factory.createVariableDeclarationList(
 )
 
 
-console.log(printAst(now)); // outputs: const now = () => new Date();
+console.log(printAst(now)); // returns: const now = () => new Date();
 
 ```
