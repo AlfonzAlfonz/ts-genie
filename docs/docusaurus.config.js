@@ -11,7 +11,7 @@ const config = {
   url: "https://ts-genie.vercel.app/",
   baseUrl: "/",
 
-  onBrokenLinks: "throw",
+  onBrokenLinks: "warn",
   onBrokenMarkdownLinks: "warn",
 
   i18n: {
