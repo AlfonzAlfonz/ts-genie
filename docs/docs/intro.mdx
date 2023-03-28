@@ -1,0 +1,112 @@
+---
+sidebar_position: 1
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Introduction
+
+Goal of this library is to simplify the process of generating TypeScript code. It is targeted at code-gen libraries as well as at medium to large projects, which can benefit from custom code generation. If you write your code generator yourself, you can integrate any API you use, with any library you use. You don't have to deal with pre-existing integrations.
+
+Writing custom code gen may be useful, when you need to integrate some complex process, for example a custom logic when fetching data from API. Imagine you have an API which uses some kind of context which you have to send on each request and you would ideally want to store it in React context. This may cause problems when using pre-existing code gens to generate the API bindings in your code, because they usually work as CLI tools with presets to choose from, but sometimes you end up bending those setups to get something the original authors didn't anticipate.
+
+This library offers a different paradigm to this problem. You write all your code generation yourself. Generating a TypeScript code in itself is not difficult, but using the typescript library directly maybe difficult because of its high verbosity. This library aims to solve this issue and to provide simple API to create your own code generators, which suits exactly your needs.
+
+## Builders
+
+The whole library utilizes builder pattern to construct the data. This allows to omit options that are not used and build cleaner code.
+
+<Tabs>
+<TabItem value="ts-genie" label="TypeScript Genie">
+
+```ts
+tsg.statement.typeAlias("User")
+  .export()
+  .prop("id", "number")
+  .prop("firstname", "string")
+  .prop("lastname", "string", { optional: true }) // all method contains max 2 parameters + options object
+
+```
+
+</TabItem>
+<TabItem value="ts-factory" label="ts.factory">
+
+```ts
+  factory.createInterfaceDeclaration(
+    undefined,
+    factory.createIdentifier("User"),
+    undefined,
+    undefined,
+    [
+      factory.createPropertySignature(
+        undefined,
+        factory.createIdentifier("id"),
+        undefined,
+        factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)
+      ),
+      factory.createPropertySignature(
+        undefined,
+        factory.createIdentifier("firstname"),
+        undefined,
+        factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)
+      ),
+      factory.createPropertySignature(
+        undefined,
+        factory.createIdentifier("lastname"),
+        factory.createToken(ts.SyntaxKind.QuestionToken),
+        factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)
+      )
+    ]
+  )
+```
+
+</TabItem>
+</Tabs>
+
+This also allows you to chain operations in more meaningful way:
+
+<Tabs>
+<TabItem value="ts-genie" label="TypeScript Genie">
+
+```ts
+tsg.expr.id("value")
+  .access("toString")
+  .call()
+```
+
+</TabItem>
+<TabItem value="ts-factory" label="ts.factory">
+
+```ts
+  factory.createExpressionStatement(
+    factory.createCallExpression(
+      factory.createPropertyAccessExpression(
+        factory.createIdentifier("value"),
+        factory.createIdentifier("toString")
+      ),
+      undefined,
+      []
+    )
+  )
+```
+
+</TabItem>
+</Tabs>
+
+## Immutability
+
+All data structures of TypeScript Genie are immutable and after each chain call a new instance is created. This ensures that each node is independent and no side effects are created. 
+
+```ts
+const val = tsg.expr.id("someVariable").access("value");
+
+const childA = val.access("childA");
+const childB = val.access("childB");
+
+printAst(childA); // returns: someVariable.value.childA
+printAst(childB); // returns: someVariable.value.childB
+
+```
+
+This pattern may use more memory, but since is library primarily targeted at CLI tools, correctness and developer experience are preferred.
