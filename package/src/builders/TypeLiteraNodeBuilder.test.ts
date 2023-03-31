@@ -13,17 +13,3 @@ test("prop", () => {
     age: number;
 }`);
 });
-
-test("props", () => {
-	const obj = new TypeLiteralNodeBuilder().props((p) => [
-		p.prop("firstname", "string"),
-		p.prop("lastname", "string", { optional: true }),
-		p.prop("age", "number"),
-	]);
-
-	expect(printAst(obj)).toBe(`{
-    firstname: string;
-    lastname?: string;
-    age: number;
-}`);
-});

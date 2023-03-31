@@ -23,16 +23,16 @@ const resolveSchemaObject = (
 
     switch (object.type) {
       case "object":
-        return tsg.type.object().props((builder) =>
-          Object.entries(object.properties ?? {}).map(([key, p]) =>
-            builder.prop(key, resolveSchemaObject(p), {
+        return tsg.type
+          .object()
+          .$reduce(Object.entries(object.properties ?? {}), (p, [key, value]) =>
+            p.prop(key, resolveSchemaObject(value), {
               optional:
-                isNullable(p) ||
+                isNullable(value) ||
                 // if required is present, check if property is required
                 (object.required && !object.required?.includes(key)),
             })
-          )
-        );
+          );
       case "string":
         return "string";
       case "number":

@@ -10,9 +10,7 @@ export function* createRequest(
   yield mod
     .interface(`${capitalize(name)}Response`)
     .export()
-    .props((props) =>
-      Object.entries(returnType).map(([key, type]) => props.prop(key, type))
-    );
+    .$reduce(Object.entries(returnType), (i, [key, prop]) => i.prop(key, prop));
 
   yield mod
     .const(`${name}Request`)
@@ -20,12 +18,8 @@ export function* createRequest(
     .value((expressions) =>
       expressions
         .arrowFunction()
-        .params((params) =>
-          query
-            ? Object.entries(query).map(([key, type]) =>
-                params.param(key, type)
-              )
-            : []
+        .$reduce(Object.entries(query ?? {}), (fn, [key, type]) =>
+          fn.param(key, type)
         )
         .expr(
           mod
@@ -35,15 +29,8 @@ export function* createRequest(
                 expressions.string(path),
                 expressions
                   .object()
-                  .props((props) =>
-                    query
-                      ? Object.keys(query).map((key) =>
-                          props.prop(
-                            key,
-                            expressions.id(key).access("toString").call()
-                          )
-                        )
-                      : []
+                  .$reduce(Object.keys(query ?? {}), (obj, key) =>
+                    obj.prop(key, expressions.id(key).access("toString").call())
                   ),
               ],
               {

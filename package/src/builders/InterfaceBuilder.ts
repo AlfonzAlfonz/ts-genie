@@ -8,7 +8,6 @@ import {
 	resolveParam,
 	resolveType,
 } from "./utils.js";
-import { PropertyTypeBuilder } from "./PropertyTypeBuilder.js";
 import { BuilderBase } from "./BaseBuilder.js";
 import { TypeBuilder } from "./TypeBuilder.js";
 
@@ -91,15 +90,6 @@ export class InterfaceBuilder extends BuilderBase<State> {
 				opts.optional ? ts.factory.createToken(ts.SyntaxKind.QuestionToken) : undefined,
 				resolveType(resolveParam(resolveHelper(type, new TypeBuilder())))
 			),
-		];
-		return c;
-	}
-
-	public props(props: WithHelper<TsGenieParam<ts.PropertySignature>[], PropertyTypeBuilder>) {
-		const c = this.clone();
-		c._state.members = [
-			...c._state.members,
-			...resolveHelper(props, new PropertyTypeBuilder()).map(resolveParam),
 		];
 		return c;
 	}

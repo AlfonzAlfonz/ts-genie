@@ -8,7 +8,6 @@ import {
 	resolveType,
 } from "./utils.js";
 import { TypeBuilder } from "./TypeBuilder.js";
-import { ParamsBuilder } from "./ParamsBuilder.js";
 import { BuilderBase } from "./BaseBuilder.js";
 
 export interface FunctionBuilderBaseState {
@@ -18,7 +17,9 @@ export interface FunctionBuilderBaseState {
 	type?: ts.TypeNode;
 }
 
-export abstract class FunctionBuilderBase<T extends FunctionBuilderBaseState> extends BuilderBase<T> {
+export abstract class FunctionBuilderBase<
+	T extends FunctionBuilderBaseState
+> extends BuilderBase<T> {
 	public param(
 		name: string,
 		type: WithHelper<TsGenieParam<ResolvableType>, TypeBuilder>,
@@ -35,15 +36,6 @@ export abstract class FunctionBuilderBase<T extends FunctionBuilderBaseState> ex
 				resolveType(resolveParam(resolveHelper(type, new TypeBuilder()))),
 				resolveParam(opts.initializer)
 			),
-		];
-		return c;
-	}
-
-	public params(params: WithHelper<TsGenieParam<ts.ParameterDeclaration>[], ParamsBuilder>) {
-		const c = this.clone();
-		c._state.parameters = [
-			...c._state.parameters,
-			...resolveHelper(params, new ParamsBuilder()).map(resolveParam),
 		];
 		return c;
 	}

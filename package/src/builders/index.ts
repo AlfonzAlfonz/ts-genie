@@ -5,8 +5,6 @@ export * from "./FunctionBuilder.js";
 export * from "./FunctionBuilderBase.js";
 export * from "./InterfaceBuilder.js";
 export * from "./ModuleBuilder.js";
-export * from "./ObjectPropertyBuilder.js";
-export * from "./PropertyTypeBuilder.js";
 export * from "./StatementBuilder.js";
 export * from "./TemplateStringBuilder.js";
 export * from "./TypeAliasBuilder.js";

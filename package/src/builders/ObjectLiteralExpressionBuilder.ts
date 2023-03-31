@@ -1,7 +1,6 @@
 import ts from "typescript";
 import { BuilderBase } from "./BaseBuilder.js";
 import { TsGenieParam, WithHelper, resolveHelper, resolveParam } from "./utils.js";
-import { ObjectPropertyBuilder } from "./ObjectPropertyBuilder.js";
 import { ExpressionStartBuilder } from "./ExpressionStartBuilder.js";
 
 interface State {
@@ -26,17 +25,6 @@ export class ObjectLiteralExpressionBuilder extends BuilderBase<State> {
 						resolveParam(resolveHelper(value, new ExpressionStartBuilder()))
 				  )
 				: ts.factory.createShorthandPropertyAssignment(name),
-		];
-		return c;
-	}
-
-	public props(
-		props: WithHelper<TsGenieParam<ts.ObjectLiteralElementLike>[], ObjectPropertyBuilder>
-	) {
-		const c = this.clone();
-		c._state.properties = [
-			...c._state.properties,
-			...resolveHelper(props, new ObjectPropertyBuilder()).map(resolveParam),
 		];
 		return c;
 	}

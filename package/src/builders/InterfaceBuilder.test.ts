@@ -14,20 +14,6 @@ test("prop", () => {
 	);
 });
 
-test("props", () => {
-	const i = new InterfaceBuilder("ProductsRequest")
-		.export()
-		.extends("PaginatedRequest")
-		.props((p) => [p.prop("firstname", "string"), p.prop("age", "number")]);
-
-	expect(printAst(i)).toBe(
-		`export interface ProductsRequest extends PaginatedRequest {
-    firstname: string;
-    age: number;
-}`
-	);
-});
-
 test("generics", () => {
 	const i = new InterfaceBuilder("Response")
 		.export()
