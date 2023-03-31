@@ -8,17 +8,25 @@ test("TypeAliasBuilder - string", () => {
 });
 
 test("TypeAliasBuilder - object", () => {
-	const ta = new TypeAliasBuilder("ProductsRequest").type((t) =>
-		t
-			.object()
-			.prop("firstname", "string")
-			.prop("lastname", "string", { optional: true })
-			.prop("age", "number")
-	);
+	const ta = new TypeAliasBuilder("CreatePersonRequest")
+		.export()
+		.type((t) =>
+			t
+				.object()
+				.prop("firstname", "string")
+				.prop("lastname", "string", { optional: true })
+				.prop("age", "number")
+		);
 
-	expect(printAst(ta)).toBe(`type ProductsRequest = {
+	expect(printAst(ta)).toBe(`export type CreatePersonRequest = {
     firstname: string;
     lastname?: string;
     age: number;
 };`);
+});
+
+test("invalid state", () => {
+	const t = new TypeAliasBuilder("Invalid");
+
+	expect(() => printAst(t)).toThrow();
 });

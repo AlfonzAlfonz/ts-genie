@@ -8,11 +8,12 @@ test("imports", () => {
 	i.import("something", "./module2.js");
 
 	i.importType("Type", "./types.js");
+	i.importType("Type2", "./types.js");
 
 	expect(printAst(...i.toImports())).toBe(
 		`import { test } from "../module.js";
 import { another, something } from "./module2.js";
-import type { Type } from "./types.js";`
+import type { Type, Type2 } from "./types.js";`
 	);
 });
 

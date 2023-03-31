@@ -41,3 +41,18 @@ test("binary, access, call", () => {
 
 	expect(printAst(bin)).toBe("(a + b).toString()");
 });
+
+
+test("optional, access, call", () => {
+	const e = new ExpressionBuilder(ts.factory.createIdentifier("a"))
+		.access("toString", { optional: true })
+		.call([], { optional: true });
+
+	expect(printAst(e)).toBe("a?.toString?.()");
+});
+
+test("as", () => {
+	const e = new ExpressionBuilder(ts.factory.createIdentifier("a")).as("any");
+
+	expect(printAst(e)).toBe("a as any");
+});

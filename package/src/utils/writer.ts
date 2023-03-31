@@ -1,4 +1,3 @@
-import fs from "fs/promises";
 import { join, parse } from "path";
 import ts from "typescript";
 import { TsGenieParam, resolveParam } from "../builders/utils.js";
@@ -8,16 +7,14 @@ import { TsGenieParam, resolveParam } from "../builders/utils.js";
  * @param urlPath target file
  * @returns handle object
  */
-export const getWriter = (path: string) => {
+export const getWriter: GetWriter = (path: string) => {
 	const buffer: (ts.Node | string | undefined)[] = [];
 
 	return {
-		writeImports: (...nodes: TsGenieParam<ts.Node>[]) =>
-			buffer.unshift(...nodes.map(resolveParam), "\n"),
-		write: (...nodes: (TsGenieParam<ts.Node> | string | undefined)[]) =>
-			buffer.push(...nodes.flatMap((n) => [resolveParam(n), "\n"])),
-		getOutput: () => {},
+		writeImports: (...nodes) => buffer.unshift(...nodes.map(resolveParam), "\n"),
+		write: (...nodes) => buffer.push(...nodes.flatMap((n) => [resolveParam(n), "\n"])),
 		close: async () => {
+			const fs = getWriter.fs ?? (await import("node:fs/promises"));
 			const filename = join(process.cwd(), path);
 
 			const sourceFile = ts.createSourceFile(
@@ -47,3 +44,22 @@ export const getWriter = (path: string) => {
 		},
 	};
 };
+
+interface GetWriter {
+	(path: string): {
+		writeImports: (...nodes: TsGenieParam<ts.Node>[]) => unknown;
+		write: (...nodes: (TsGenieParam<ts.Node> | string | undefined)[]) => unknown;
+		close: () => Promise<unknown>;
+	};
+	fs?: FS;
+}
+
+interface FS {
+	mkdir: (dir: string, opts: { recursive: true }) => Promise<unknown>;
+	open: (filename: string, mode: "w+") => Promise<FileHandle>;
+}
+
+interface FileHandle {
+	write: (str: string) => Promise<unknown>;
+	close: () => Promise<unknown>;
+}

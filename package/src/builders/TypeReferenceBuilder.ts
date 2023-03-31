@@ -23,7 +23,7 @@ export class TypeReferenceBuilder extends BuilderBase<State> {
 		});
 	}
 
-	public prop(type: WithHelper<TsGenieParam<ResolvableType>, TypeBuilder>) {
+	public param(type: WithHelper<TsGenieParam<ResolvableType>, TypeBuilder>) {
 		const c = this.clone();
 		c._state.typeParameters = [
 			...c._state.typeParameters,

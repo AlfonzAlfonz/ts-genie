@@ -5,9 +5,10 @@ test("expression body", () => {
 	const af = new ArrowFunctionBuilder()
 		.param("a", "number")
 		.param("b", "number")
+		.returns("number")
 		.expr((e) => e.operation(e.id("a"), "+", e.id("b")));
 
-	expect(printAst(af)).toBe(`(a: number, b: number) => a + b`);
+	expect(printAst(af)).toBe(`(a: number, b: number): number => a + b`);
 });
 
 test("block body", () => {
