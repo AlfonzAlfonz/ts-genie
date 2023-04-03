@@ -9,8 +9,15 @@ export abstract class BuilderBase<State = unknown> {
 		return condition ? ifTruthy(this) : this;
 	}
 
-	public $reduce<T extends unknown>(collection: T[], accumulator: (builder: this, itm: T) => this) {
-		return collection.reduce(accumulator, this);
+	public $reduce<T extends unknown>(
+		iterable: Iterable<T>,
+		accumulator: (builder: this, itm: T) => this
+	) {
+		let result = this;
+		for (const itm of iterable) {
+			result = accumulator(result, itm);
+		}
+		return result;
 	}
 
 	public clone(): this {
