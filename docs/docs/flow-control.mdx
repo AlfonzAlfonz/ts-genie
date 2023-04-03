@@ -1,0 +1,82 @@
+---
+sidebar_position: 4
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Flow control
+
+Typescript Genie offers two method to append to builders conditionally. For conditions, each builder contains `$if` and for mapping arrays builders contains `$reduce`.
+
+## `.$if(condition, isTruthy)`
+
+Method `.$if` calls and returns the `isTruthy` function if the `condition` is [truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy). This is useful for example when rendering some interface property if some data are available.
+
+<Tabs>
+<TabItem value="with" label="With $if">
+
+```ts
+const withAge = () => Math.random() > 0.5;
+
+const interfac = tsg.statement.interface("Person")
+  .prop("firstname", "string")
+  .$if(withAge(), i => i.prop("age", "number"));
+```
+
+
+</TabItem>
+<TabItem value="without" label="Without $if">
+
+```ts
+const withAge = () => Math.random() > 0.5;
+
+let interfac = tsg.statement.interface("Person")
+  .prop("firstname", "string");
+
+if(withAge()) {
+  interfac = i.prop("age", "number");
+}
+```
+
+</TabItem>
+</Tabs>
+
+
+## `.$reduce(iterable, accumulator)`
+
+Method `.$reduce` chains `accumulator` calls for each item in the `iterable` (e.g. array). This is useful when dealing 
+
+<Tabs>
+<TabItem value="with" label="With $reduce">
+
+```ts
+const properties = {
+  firstname: "string",
+  age: "number"
+} as const;
+
+let interfac = tsg.statement.interface("Person")
+  .$reduce(Object.entries(properties), (i, [key, value]) =>
+    i.prop(key, value)
+  );
+```
+
+</TabItem>
+<TabItem value="without" label="Without $reduce">
+
+```ts
+const properties = {
+  firstname: "string",
+  age: "number"
+} as const;
+
+let interfac = tsg.statement.interface("Person");
+
+for (const [key, value] of Object.entries(properties)) {
+  interfac = interfac.prop(key, value);
+}
+```
+
+</TabItem>
+</Tabs>
